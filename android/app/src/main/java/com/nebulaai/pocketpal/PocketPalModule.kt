@@ -9,7 +9,6 @@ import android.provider.DocumentsContract
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.facebook.react.modules.core.PermissionListener
 import java.io.File
 import java.util.*
 
@@ -236,7 +235,11 @@ class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
+        // Not used
+    }
+
+    override fun onUserLeaveHint(activity: Activity) {
         // Not used
     }
 }
