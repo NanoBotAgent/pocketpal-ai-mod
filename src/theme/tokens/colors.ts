@@ -222,12 +222,7 @@ export const darkColors: TokenColors = {
   receivedMessageDocumentIcon: DARK_PRIMARY,
   sentMessageDocumentIcon: DARK_ON_SURFACE,
   userAvatarImageBackground: 'transparent',
-  userAvatarNameColors: [
-    '#10b981',
-    '#0ea5e9',
-    '#8b5cf6',
-    DARK_ERROR,
-  ],
+  userAvatarNameColors: ['#10b981', '#0ea5e9', '#8b5cf6', DARK_ERROR],
   searchBarBackground: 'rgba(15, 23, 42, 0.6)',
 
   // Thinking bubble

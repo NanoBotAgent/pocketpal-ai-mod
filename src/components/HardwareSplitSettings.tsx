@@ -1,5 +1,11 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, ViewStyle} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+} from 'react-native';
 import {observer} from 'mobx-react-lite';
 import {useTheme} from 'react-native-paper';
 import {hardwareSplitStore, SplitPreset} from '../store/HardwareSplitStore';
@@ -73,19 +79,11 @@ export const HardwareSplitSettings = observer(() => {
         />
         <View style={styles.ratioLabels}>
           <Text
-            style={[
-              styles.ratioText,
-              styles.ratioGpu,
-              {color: c.secondary},
-            ]}>
+            style={[styles.ratioText, styles.ratioGpu, {color: c.secondary}]}>
             GPU {hardwareSplitStore.gpuPercentage}%
           </Text>
           <Text
-            style={[
-              styles.ratioText,
-              styles.ratioCpu,
-              {color: c.onSurfaceVariant},
-            ]}>
+            style={[styles.ratioText, styles.ratioCpu, {color: c.onSurfaceVariant}]}>
             CPU {hardwareSplitStore.cpuPercentage}%
           </Text>
         </View>

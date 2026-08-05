@@ -292,10 +292,7 @@ export const ModelsScreen: React.FC = observer(() => {
       const modelFiles = await pocketPalNative.pickPocketPalModelsDirectory();
       if (modelFiles.length > 0) {
         const count = await modelStore.importPocketPalModels(modelFiles);
-        Alert.alert(
-          'Success',
-          `Imported ${count} model(s) from PocketPal AI`,
-        );
+        Alert.alert('Success', `Imported ${count} model(s) from PocketPal AI`);
       } else {
         Alert.alert(
           'No Models Found',
