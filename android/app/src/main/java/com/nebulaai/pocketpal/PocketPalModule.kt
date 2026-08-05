@@ -9,10 +9,11 @@ import android.provider.DocumentsContract
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.PermissionListener
 import java.io.File
 import java.util.*
 
-class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), ActivityEventListener {
 
     override fun getName(): String = "PocketPalModule"
 
@@ -21,6 +22,10 @@ class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     private val REQUEST_CODE_PICK_DIRECTORY = 1001
 
     private var promise: Promise? = null
+
+    init {
+        reactContext.addActivityEventListener(this)
+    }
 
     @ReactMethod
     fun isPocketPalInstalled(promise: Promise) {
@@ -160,7 +165,7 @@ class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
 
                     if (isModelFile(displayName, mimeType)) {
                         models.add(ModelFile(displayName, childUri, documentId, size))
-                    } else if (isDirectory(flags)) {
+                    } else if (isDirectory(context, documentId, treeUri)) {
                         // Recursively scan subdirectories
                         models.addAll(scanDirectoryForModels(context, childUri))
                     }
@@ -183,8 +188,17 @@ class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
                lowerName.endsWith(".pth")
     }
 
-    private fun isDirectory(flags: Int): Boolean {
-        return (flags and DocumentsContract.Document.FLAG_DIR) != 0
+    private fun isDirectory(context: Context, documentId: String, treeUri: Uri): Boolean {
+        val childUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+        val projection = arrayOf(DocumentsContract.Document.COLUMN_MIME_TYPE)
+        return context.contentResolver.query(childUri, projection, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val mimeType = cursor.getString(0)
+                mimeType == DocumentsContract.Document.MIME_TYPE_DIR
+            } else {
+                false
+            }
+        } ?: false
     }
 
     override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
@@ -220,5 +234,9 @@ class PocketPalModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
             }
             promise = null
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        // Not used
     }
 }
