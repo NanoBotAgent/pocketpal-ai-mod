@@ -257,6 +257,13 @@ export interface MD3BaseColors extends MD3Colors {
   inverseSecondary: string;
   shadow: string;
   scrim: string;
+
+  // MD3 surface container colors (M3 Expressive)
+  surfaceContainerLowest: string;
+  surfaceContainerLow: string;
+  surfaceContainer: string;
+  surfaceContainerHigh: string;
+  surfaceContainerHighest: string;
 }
 
 export interface ThemeIcons {

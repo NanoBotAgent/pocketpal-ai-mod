@@ -84,39 +84,39 @@ describe('useTheme', () => {
   // Hook-level: changing uiStore.language and rerendering produces a Theme
   // whose Fraunces typography token resolves to Inter on the next render.
   describe('language swap reactivity', () => {
-    it('headlineH1 swaps Fraunces → Inter when language changes to fa', () => {
+    it('headlineH1 swaps Space Grotesk → Manrope when language changes to fa', () => {
       const {result, rerender} = renderHook(() => useTheme());
       expect(result.current.typography.headlineH1.fontFamily).toBe(
-        FONT_FAMILIES.FRAUNCES_MEDIUM,
+        FONT_FAMILIES.SPACE_GROTESK_BOLD,
       );
 
       uiStore.setLanguage('fa');
       rerender({});
 
       expect(result.current.typography.headlineH1.fontFamily).toBe(
-        FONT_FAMILIES.INTER_MEDIUM,
+        FONT_FAMILIES.MANROPE_BOLD,
       );
     });
 
-    it('headlineH1 swaps Fraunces → Inter for Cyrillic locales (ru, uk)', () => {
-      // Bundled Fraunces subset is Latin-only — ru/uk must use Inter.
+    it('headlineH1 swaps Space Grotesk → Manrope for Cyrillic locales (ru, uk)', () => {
+      // Bundled Space Grotesk subset is Latin-only — ru/uk must use Manrope.
       for (const lang of ['ru', 'uk'] as const) {
         uiStore.setLanguage(lang);
         const {result} = renderHook(() => useTheme());
         expect(result.current.typography.headlineH1.fontFamily).toBe(
-          FONT_FAMILIES.INTER_MEDIUM,
+          FONT_FAMILIES.MANROPE_BOLD,
         );
       }
     });
 
-    it('headlineH1 swaps for every Fraunces-fallback locale', () => {
+    it('headlineH1 swaps for every fallback locale', () => {
       // Derived, not hand-listed — a hardcoded copy silently rots when a
       // locale joins the fallback set (as pl did).
       for (const lang of NON_LATIN_LOCALES) {
         uiStore.setLanguage(lang);
         const {result} = renderHook(() => useTheme());
         expect(result.current.typography.headlineH1.fontFamily).toBe(
-          FONT_FAMILIES.INTER_MEDIUM,
+          FONT_FAMILIES.MANROPE_BOLD,
         );
       }
     });

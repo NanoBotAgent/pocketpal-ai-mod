@@ -12,6 +12,7 @@ describe('FABGroup', () => {
   const mockOnAddHFModel = jest.fn();
   const mockOnAddLocalModel = jest.fn();
   const mockOnAddRemoteModel = jest.fn();
+  const mockOnImportPocketPalModels = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -23,6 +24,7 @@ describe('FABGroup', () => {
         onAddHFModel={mockOnAddHFModel}
         onAddLocalModel={mockOnAddLocalModel}
         onAddRemoteModel={mockOnAddRemoteModel}
+        onImportPocketPalModels={mockOnImportPocketPalModels}
       />,
       {withNavigation: true},
     );
@@ -36,6 +38,7 @@ describe('FABGroup', () => {
         onAddHFModel={mockOnAddHFModel}
         onAddLocalModel={mockOnAddLocalModel}
         onAddRemoteModel={mockOnAddRemoteModel}
+        onImportPocketPalModels={mockOnImportPocketPalModels}
       />,
       {withNavigation: true},
     );
@@ -57,6 +60,7 @@ describe('FABGroup', () => {
         onAddHFModel={mockOnAddHFModel}
         onAddLocalModel={mockOnAddLocalModel}
         onAddRemoteModel={mockOnAddRemoteModel}
+        onImportPocketPalModels={mockOnImportPocketPalModels}
       />,
       {withNavigation: true},
     );
