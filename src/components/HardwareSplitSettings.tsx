@@ -83,7 +83,11 @@ export const HardwareSplitSettings = observer(() => {
             GPU {hardwareSplitStore.gpuPercentage}%
           </Text>
           <Text
-            style={[styles.ratioText, styles.ratioCpu, {color: c.onSurfaceVariant}]}>
+            style={[
+              styles.ratioText,
+              styles.ratioCpu,
+              {color: c.onSurfaceVariant},
+            ]}>
             CPU {hardwareSplitStore.cpuPercentage}%
           </Text>
         </View>
