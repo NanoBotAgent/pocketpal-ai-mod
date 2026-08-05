@@ -4,9 +4,7 @@ import type {Theme} from '../../../utils/types';
 import {FONT_FAMILIES} from '../../../theme/tokens/typography';
 
 export const createStyles = (theme: Theme) => {
-  const isSpaceGrotesk =
-    theme.typography.headlineH1.fontFamily ===
-    FONT_FAMILIES.SPACE_GROTESK_BOLD;
+  const isSpaceGrotesk = theme.typography.headlineH1.fontFamily === FONT_FAMILIES.SPACE_GROTESK_BOLD;
   return StyleSheet.create({
     header: {
       width: 369,
