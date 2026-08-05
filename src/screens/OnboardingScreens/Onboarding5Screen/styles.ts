@@ -4,8 +4,9 @@ import type {Theme} from '../../../utils/types';
 import {FONT_FAMILIES} from '../../../theme/tokens/typography';
 
 export const createStyles = (theme: Theme) => {
-  const isFraunces =
-    theme.typography.headlineH1.fontFamily === FONT_FAMILIES.FRAUNCES_MEDIUM;
+  const isSpaceGrotesk =
+    theme.typography.headlineH1.fontFamily ===
+    FONT_FAMILIES.SPACE_GROTESK_BOLD;
   return StyleSheet.create({
     header: {
       width: 369,
@@ -13,10 +14,9 @@ export const createStyles = (theme: Theme) => {
       gap: theme.spacing.sm,
     },
     title: {
-      // Figma `Headline/H2` — Fraunces Medium 24/28, centered.
-      fontFamily: isFraunces
-        ? FONT_FAMILIES.FRAUNCES_MEDIUM
-        : FONT_FAMILIES.INTER_MEDIUM,
+      fontFamily: isSpaceGrotesk
+        ? FONT_FAMILIES.SPACE_GROTESK_SEMIBOLD
+        : FONT_FAMILIES.MANROPE_BOLD,
       fontSize: 24,
       lineHeight: 28,
       color: theme.colors.onBackground,

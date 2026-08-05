@@ -48,7 +48,7 @@ export const HardwareSplitSettings = observer(() => {
                 {
                   backgroundColor: active
                     ? c.secondaryContainer
-                    : c.surfaceContainer,
+                    : c.surfaceVariant,
                   borderColor: active ? c.secondary : c.outline,
                 },
               ]}>
@@ -67,7 +67,7 @@ export const HardwareSplitSettings = observer(() => {
         })}
       </View>
 
-      <View style={[styles.ratioBar, {backgroundColor: c.surfaceContainer}]}>
+      <View style={[styles.ratioBar, {backgroundColor: c.surfaceVariant}]}>
         <View
           style={[
             styles.gpuBar,
@@ -105,7 +105,7 @@ export const HardwareSplitSettings = observer(() => {
         <View
           style={[
             styles.sliderTrack,
-            {backgroundColor: c.surfaceContainerHighest},
+            {backgroundColor: c.surfaceVariant},
           ]}>
           <View
             style={[
