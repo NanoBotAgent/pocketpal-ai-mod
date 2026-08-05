@@ -19,7 +19,7 @@ jobs:
       translation_only: ${{ steps.check.outputs.translation_only }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -56,18 +56,18 @@ jobs:
     steps:
       # Step 1: Check out the repository
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Cache node_modules
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
 
       # Step 2: Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.21.0'
           cache: 'yarn'
@@ -107,18 +107,18 @@ jobs:
     if: needs.detect-changes.outputs.translation_only != 'true'
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.21.0'
           cache: 'yarn'
 
       # Cache node_modules
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
@@ -130,7 +130,7 @@ jobs:
         run: yarn install
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -252,18 +252,18 @@ jobs:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.21.0'
           cache: 'yarn'
 
       # Cache node_modules
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}

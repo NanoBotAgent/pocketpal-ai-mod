@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, ViewStyle} from 'react-native';
 import {observer} from 'mobx-react-lite';
 import {useTheme} from 'react-native-paper';
 import {hardwareSplitStore, SplitPreset} from '../store/HardwareSplitStore';
@@ -22,13 +16,11 @@ export const HardwareSplitSettings = observer(() => {
   const theme = useTheme();
   const c = theme.colors;
 
-  const titleStyle = [
-    styles.title,
-    {color: c.onSurface, fontFamily: 'SpaceGrotesk-SemiBold'},
-  ];
+  const titleStyle = [styles.title, styles.titleText, {color: c.onSurface}];
   const subtitleStyle = [
     styles.subtitle,
-    {color: c.onSurfaceVariant, fontFamily: 'Manrope-Regular'},
+    styles.subtitleText,
+    {color: c.onSurfaceVariant},
   ];
 
   return (
@@ -57,11 +49,9 @@ export const HardwareSplitSettings = observer(() => {
               <Text
                 style={[
                   styles.presetLabel,
+                  styles.presetLabelText,
                   {
-                    color: active
-                      ? c.onSecondaryContainer
-                      : c.onSurfaceVariant,
-                    fontFamily: 'Manrope-Medium',
+                    color: active ? c.onSecondaryContainer : c.onSurfaceVariant,
                   },
                 ]}>
                 {preset.label}
@@ -71,8 +61,7 @@ export const HardwareSplitSettings = observer(() => {
         })}
       </View>
 
-      <View
-        style={[styles.ratioBar, {backgroundColor: c.surfaceContainer}]}>
+      <View style={[styles.ratioBar, {backgroundColor: c.surfaceContainer}]}>
         <View
           style={[
             styles.gpuBar,
@@ -86,17 +75,16 @@ export const HardwareSplitSettings = observer(() => {
           <Text
             style={[
               styles.ratioText,
-              {color: c.secondary, fontFamily: 'JetBrainsMono-Medium'},
+              styles.ratioGpu,
+              {color: c.secondary},
             ]}>
             GPU {hardwareSplitStore.gpuPercentage}%
           </Text>
           <Text
             style={[
               styles.ratioText,
-              {
-                color: c.onSurfaceVariant,
-                fontFamily: 'JetBrainsMono-Medium',
-              },
+              styles.ratioCpu,
+              {color: c.onSurfaceVariant},
             ]}>
             CPU {hardwareSplitStore.cpuPercentage}%
           </Text>
@@ -107,7 +95,8 @@ export const HardwareSplitSettings = observer(() => {
         <Text
           style={[
             styles.sliderLabel,
-            {color: c.onSurfaceVariant, fontFamily: 'Manrope-Regular'},
+            styles.sliderLabelText,
+            {color: c.onSurfaceVariant},
           ]}>
           Custom: {hardwareSplitStore.gpuPercentage}% GPU
         </Text>
@@ -159,9 +148,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 4,
   } as ViewStyle,
+  titleText: {
+    fontFamily: 'SpaceGrotesk-SemiBold',
+  } as ViewStyle,
   subtitle: {
     fontSize: 14,
     marginBottom: 16,
+  } as ViewStyle,
+  subtitleText: {
+    fontFamily: 'Manrope-Regular',
   } as ViewStyle,
   presetRow: {
     flexDirection: 'row',
@@ -178,6 +173,9 @@ const styles = StyleSheet.create({
   presetLabel: {
     fontSize: 13,
     fontWeight: '500',
+  } as ViewStyle,
+  presetLabelText: {
+    fontFamily: 'Manrope-Medium',
   } as ViewStyle,
   ratioBar: {
     height: 40,
@@ -203,12 +201,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   } as ViewStyle,
+  ratioGpu: {
+    fontFamily: 'JetBrainsMono-Medium',
+  } as ViewStyle,
+  ratioCpu: {
+    fontFamily: 'JetBrainsMono-Medium',
+  } as ViewStyle,
   sliderContainer: {
     marginTop: 8,
   } as ViewStyle,
   sliderLabel: {
     fontSize: 13,
     marginBottom: 8,
+  } as ViewStyle,
+  sliderLabelText: {
+    fontFamily: 'Manrope-Regular',
   } as ViewStyle,
   sliderTrack: {
     height: 28,

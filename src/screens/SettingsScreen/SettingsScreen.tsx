@@ -56,7 +56,7 @@ import {
   ttsStore,
   searchProviderStore,
 } from '../../store';
-import {hardwareSplitStore} from '../../store/HardwareSplitStore';
+
 import {HardwareSplitSettings} from '../../components/HardwareSplitSettings';
 import type {SearchProviderId} from '../../services/search/types';
 

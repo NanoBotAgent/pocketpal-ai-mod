@@ -120,7 +120,7 @@ const SessionItem = React.memo<SessionItemProps>(
                 onMenuDismiss();
               }}
               label={l10n.common.rename}
-              leadingIcon={() => <EditIcon stroke={theme.colors.primary} />}
+              leadingIcon={renderEditIcon}
             />
             <Menu.Item
               onPress={() => {
@@ -128,7 +128,7 @@ const SessionItem = React.memo<SessionItemProps>(
                 onMenuDismiss();
               }}
               label={l10n.common.export}
-              leadingIcon={() => <ShareIcon stroke={theme.colors.primary} />}
+              leadingIcon={renderShareIcon}
             />
             <Menu.Item
               onPress={() => {
@@ -137,7 +137,7 @@ const SessionItem = React.memo<SessionItemProps>(
               }}
               label={l10n.common.delete}
               labelStyle={{color: theme.colors.error}}
-              leadingIcon={() => <TrashIcon stroke={theme.colors.error} />}
+              leadingIcon={renderTrashIcon}
             />
             <Divider style={styles.menuDivider} />
             <Menu.Item
@@ -155,6 +155,16 @@ const SessionItem = React.memo<SessionItemProps>(
 );
 
 SessionItem.displayName = 'SessionItem';
+
+const renderEditIcon = ({size, color}: {size: number; color: string}) => (
+  <EditIcon stroke={color} width={size} height={size} />
+);
+const renderShareIcon = ({size, color}: {size: number; color: string}) => (
+  <ShareIcon stroke={color} width={size} height={size} />
+);
+const renderTrashIcon = ({size, color}: {size: number; color: string}) => (
+  <TrashIcon stroke={color} width={size} height={size} />
+);
 
 // Selection mode header component
 interface SelectionModeHeaderProps {

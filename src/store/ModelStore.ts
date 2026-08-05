@@ -2441,7 +2441,14 @@ class ModelStore {
     }
   };
 
-  importPocketPalModels = async (modelFiles: Array<{name: string; uri: string; path: string; size: number}>) => {
+  importPocketPalModels = async (
+    modelFiles: Array<{
+      name: string;
+      uri: string;
+      path: string;
+      size: number;
+    }>,
+  ) => {
     const defaultSettings = getLocalModelDefaultSettings();
     const newModels: Model[] = [];
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import {StyleSheet} from 'react-native';
 import Svg, {Rect} from 'react-native-svg';
 
 import {ShieldGlyph} from '../../../assets/onboarding/illustrations';
@@ -56,12 +57,14 @@ export const PhoneWithShield: React.FC<PhoneWithShieldProps> = ({
       <ShieldGlyph
         width={shieldSize}
         height={shieldSize}
-        style={{
-          position: 'absolute',
-          top: (49.8 / viewBoxH) * height,
-          left: (width - shieldSize) / 2,
-        }}
+        style={styles.shield}
       />
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  shield: {
+    position: 'absolute',
+  },
+});

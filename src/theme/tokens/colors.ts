@@ -98,12 +98,7 @@ export const lightColors: TokenColors = {
   receivedMessageDocumentIcon: LIGHT_PRIMARY,
   sentMessageDocumentIcon: LIGHT_ON_SURFACE,
   userAvatarImageBackground: 'transparent',
-  userAvatarNameColors: [
-    '#059669',
-    '#0ea5e9',
-    '#8b5cf6',
-    LIGHT_ERROR,
-  ],
+  userAvatarNameColors: ['#059669', '#0ea5e9', '#8b5cf6', LIGHT_ERROR],
   searchBarBackground: 'rgba(15, 23, 42, 0.08)',
 
   // Thinking bubble

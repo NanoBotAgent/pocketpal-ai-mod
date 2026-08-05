@@ -1,8 +1,4 @@
-import React, {
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {Image} from 'react-native';
 import {FAB} from 'react-native-paper';
 import {useTheme} from '../../../hooks';

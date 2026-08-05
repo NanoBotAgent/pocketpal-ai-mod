@@ -1,6 +1,12 @@
 import {makeAutoObservable} from 'mobx';
 
-export type SplitPreset = '100-0' | '80-20' | '50-50' | '20-80' | '0-100' | 'custom';
+export type SplitPreset =
+  | '100-0'
+  | '80-20'
+  | '50-50'
+  | '20-80'
+  | '0-100'
+  | 'custom';
 
 export interface HardwareSplitConfig {
   preset: SplitPreset;

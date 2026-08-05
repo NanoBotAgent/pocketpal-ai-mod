@@ -297,7 +297,10 @@ export const ModelsScreen: React.FC = observer(() => {
           `Imported ${count} model(s) from PocketPal AI`,
         );
       } else {
-        Alert.alert('No Models Found', 'No compatible model files found in the selected directory');
+        Alert.alert(
+          'No Models Found',
+          'No compatible model files found in the selected directory',
+        );
       }
     } catch (e) {
       if (e instanceof Error && e.message.includes('CANCELLED')) {
@@ -306,7 +309,9 @@ export const ModelsScreen: React.FC = observer(() => {
       console.error('Failed to import PocketPal models:', e);
       Alert.alert(
         'Error',
-        e instanceof Error ? e.message : 'Failed to import models from PocketPal AI',
+        e instanceof Error
+          ? e.message
+          : 'Failed to import models from PocketPal AI',
       );
     }
   };
