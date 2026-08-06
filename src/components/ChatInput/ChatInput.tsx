@@ -23,13 +23,14 @@ import {
   VideoRecorderIcon,
   PlusIcon,
   AtomIcon,
+  SearchIcon,
 } from '../../assets/icons';
 
 import {useTheme} from '../../hooks';
 
 import {createStyles} from './styles';
 
-import {chatSessionStore, modelStore, palStore, uiStore} from '../../store';
+import {chatSessionStore, modelStore, palStore, searchProviderStore, uiStore} from '../../store';
 
 import {MessageType} from '../../utils/types';
 import {L10nContext, UserContext} from '../../utils';
@@ -80,6 +81,12 @@ export interface ChatInputTopLevelProps {
   reasoningEffort?: string;
   /** Callback to cycle the graded effort state (off -> values -> off) */
   onEffortCycle?: () => void;
+  /** Whether to show the web search toggle button */
+  showWebSearch?: boolean;
+  /** Whether web search is currently enabled */
+  isWebSearchEnabled?: boolean;
+  /** Callback when web search toggle is pressed */
+  onWebSearchToggle?: (enabled: boolean) => void;
 }
 
 export interface ChatInputAdditionalProps {
@@ -105,6 +112,12 @@ export interface ChatInputAdditionalProps {
   reasoningEffort?: string;
   /** Callback to cycle the graded effort state (off -> values -> off) */
   onEffortCycle?: () => void;
+  /** Whether to show the web search toggle button */
+  showWebSearch?: boolean;
+  /** Whether web search is currently enabled */
+  isWebSearchEnabled?: boolean;
+  /** Callback when web search toggle is pressed */
+  onWebSearchToggle?: (enabled: boolean) => void;
 }
 
 export type ChatInputProps = ChatInputTopLevelProps & ChatInputAdditionalProps;
@@ -143,6 +156,9 @@ export const ChatInput = observer(
     effortValues = [],
     reasoningEffort,
     onEffortCycle,
+    showWebSearch = false,
+    isWebSearchEnabled = false,
+    onWebSearchToggle,
   }: ChatInputProps) => {
     const l10n = React.useContext(L10nContext);
     const theme = useTheme();
@@ -570,6 +586,44 @@ export const ChatInput = observer(
                   </Text>
                 )}
               </View>
+
+              {/* Web Search Toggle Button */}
+              {showWebSearch && !isCameraActive && (
+                <TouchableOpacity
+                  testID="web-search-toggle"
+                  style={[
+                    styles.thinkingToggleLeft,
+                    isWebSearchEnabled && {backgroundColor: onSurfaceColor},
+                    {borderColor: onSurfaceColorVariant},
+                  ]}
+                  onPress={() => onWebSearchToggle?.(!isWebSearchEnabled)}
+                  accessibilityLabel={
+                    isWebSearchEnabled
+                      ? l10n.components.chatInput.webSearchToggle.disableWebSearch
+                      : l10n.components.chatInput.webSearchToggle.enableWebSearch
+                  }
+                  accessibilityRole="button">
+                  <SearchIcon
+                    width={14}
+                    height={14}
+                    stroke={
+                      isWebSearchEnabled
+                        ? inputBackgroundColor
+                        : onSurfaceColorVariant
+                    }
+                    strokeWidth={2}
+                  />
+                  <Text
+                    style={[
+                      styles.thinkingToggleText,
+                      isWebSearchEnabled
+                        ? {color: inputBackgroundColor}
+                        : {color: onSurfaceColorVariant},
+                    ]}>
+                    {l10n.components.chatInput.webSearchToggle.searchText}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               {/* Thinking Toggle Button. Graded models (axis-2) cycle
                   off -> low -> medium -> high; effortless models toggle

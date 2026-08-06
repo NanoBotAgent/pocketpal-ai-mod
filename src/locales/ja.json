@@ -581,6 +581,11 @@
         "thinkingDisabled": "思考モードが無効",
         "thinkText": "思考",
         "cycleEffort": "推論の努力レベル：{{level}}。ダブルタップで努力レベルを切り替えます"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Web検索を有効にする",
+        "disableWebSearch": "Web検索を無効にする",
+        "searchText": "検索"
       }
     },
     "contentReportSheet": {

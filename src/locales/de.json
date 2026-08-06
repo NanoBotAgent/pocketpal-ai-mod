@@ -535,6 +535,11 @@
         "thinkingEnabled": "Denkmodus aktiviert",
         "thinkingDisabled": "Denkmodus deaktiviert",
         "thinkText": "Denken"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Websuche aktivieren",
+        "disableWebSearch": "Websuche deaktivieren",
+        "searchText": "Suchen"
       }
     },
     "contentReportSheet": {

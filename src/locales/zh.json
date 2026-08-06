@@ -581,6 +581,11 @@
         "thinkingDisabled": "思考模式已禁用",
         "thinkText": "思考",
         "cycleEffort": "推理强度：{{level}}。双击可切换强度级别"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "启用网络搜索",
+        "disableWebSearch": "禁用网络搜索",
+        "searchText": "搜索"
       }
     },
     "contentReportSheet": {

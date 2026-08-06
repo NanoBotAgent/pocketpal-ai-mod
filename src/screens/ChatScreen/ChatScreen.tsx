@@ -19,6 +19,7 @@ import {
   modelStore,
   chatSessionStore,
   palStore,
+  searchProviderStore,
   serverStore,
   uiStore,
 } from '../../store';
@@ -127,6 +128,12 @@ export const ChatScreen: React.FC = observer(() => {
   const [reasoningEffort, setReasoningEffort] = useState<string | undefined>(
     undefined,
   );
+
+  // Web search state - check if search is available and enabled
+  const [webSearchEnabled, setWebSearchEnabled] = useState(() =>
+    searchProviderStore.canSearch,
+  );
+
   const activeSession = chatSessionStore.sessions.find(
     s => s.id === chatSessionStore.activeSessionId,
   );
@@ -229,6 +236,10 @@ export const ChatScreen: React.FC = observer(() => {
     await persistReasoning(enabled);
   };
 
+  const handleWebSearchToggle = React.useCallback((enabled: boolean) => {
+    setWebSearchEnabled(enabled);
+  }, []);
+
   // Graded pill cycle: off -> values[0] -> ... -> values[n] -> off.
   const handleEffortCycle = async () => {
     const values = reasoningCapability.effortValues;
@@ -276,6 +287,9 @@ export const ChatScreen: React.FC = observer(() => {
         sendButtonVisibilityMode="always"
         showImageUpload={true}
         isVisionEnabled={multimodalEnabled}
+        showWebSearch={searchProviderStore.canSearch}
+        isWebSearchEnabled={webSearchEnabled}
+        onWebSearchToggle={handleWebSearchToggle}
         initialInputText={pendingMessage || undefined}
         onInitialTextConsumed={clearPendingMessage}
         inputProps={{

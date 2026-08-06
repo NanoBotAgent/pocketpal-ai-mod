@@ -602,6 +602,11 @@
         "thinkingDisabled": "Thinking mode disabled",
         "thinkText": "Think",
         "cycleEffort": "Reasoning effort: {{level}}. Double tap to cycle effort level"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Enable web search",
+        "disableWebSearch": "Disable web search",
+        "searchText": "Search"
       }
     },
     "contentReportSheet": {

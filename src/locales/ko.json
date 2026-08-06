@@ -299,6 +299,11 @@
         "thinkingDisabled": "사고 모드 비활성화됨",
         "thinkText": "사고",
         "cycleEffort": "추론 강도: {{level}}. 두 번 탭하면 강도 단계가 바뀌어요"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "웹 검색 활성화",
+        "disableWebSearch": "웹 검색 비활성화",
+        "searchText": "검색"
       }
     },
     "chatGenerationSettingsSheet": {

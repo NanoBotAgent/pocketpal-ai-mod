@@ -347,7 +347,19 @@
       "loading": "Chargement..."
     },
     "chatInput": {
-      "inputPlaceholder": "Message"
+      "inputPlaceholder": "Message",
+      "thinkingToggle": {
+        "enableThinking": "Activer le mode réflexion",
+        "disableThinking": "Désactiver le mode réflexion",
+        "thinkingEnabled": "Mode réflexion activé",
+        "thinkingDisabled": "Mode réflexion désactivé",
+        "thinkText": "Réfléchir"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Activer la recherche web",
+        "disableWebSearch": "Désactiver la recherche web",
+        "searchText": "Rechercher"
+      }
     },
     "chatGenerationSettingsSheet": {
       "invalidValues": "Valeurs invalides",

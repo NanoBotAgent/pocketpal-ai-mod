@@ -565,6 +565,11 @@
         "thinkingEnabled": "Modo de raciocínio ativado",
         "thinkingDisabled": "Modo de raciocínio desativado",
         "thinkText": "Pensar"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Ativar pesquisa web",
+        "disableWebSearch": "Desativar pesquisa web",
+        "searchText": "Pesquisar"
       }
     },
     "contentReportSheet": {

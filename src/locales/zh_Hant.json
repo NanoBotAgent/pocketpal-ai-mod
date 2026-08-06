@@ -299,6 +299,11 @@
         "thinkingDisabled": "思考模式已停用",
         "thinkText": "思考",
         "cycleEffort": "推理強度：{{level}}。連按兩次可切換強度層級"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "啟用網路搜尋",
+        "disableWebSearch": "停用網路搜尋",
+        "searchText": "搜尋"
       }
     },
     "chatGenerationSettingsSheet": {

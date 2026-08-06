@@ -299,6 +299,11 @@
         "thinkingDisabled": "Режим рассуждения выключен",
         "thinkText": "Рассуждение",
         "cycleEffort": "Уровень рассуждений: {{level}}. Нажмите дважды, чтобы изменить"
+      },
+      "webSearchToggle": {
+        "enableWebSearch": "Включить веб-поиск",
+        "disableWebSearch": "Отключить веб-поиск",
+        "searchText": "Поиск"
       }
     },
     "chatGenerationSettingsSheet": {

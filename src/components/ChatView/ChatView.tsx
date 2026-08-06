@@ -167,6 +167,12 @@ export interface ChatProps extends ChatTopLevelProps {
   showImageUpload?: boolean;
   /** Whether to enable vision mode for the chat input */
   isVisionEnabled?: boolean;
+  /** Whether to show the web search toggle button in the chat input */
+  showWebSearch?: boolean;
+  /** Whether web search is currently enabled */
+  isWebSearchEnabled?: boolean;
+  /** Callback when web search toggle is pressed */
+  onWebSearchToggle?: (enabled: boolean) => void;
   /** Initial text to prefill the input (e.g., from deep linking) */
   initialInputText?: string;
   /** Callback when initial text is consumed */
@@ -231,6 +237,9 @@ export const ChatView = observer(
     showDateHeaders = false,
     showImageUpload = false,
     isVisionEnabled = false,
+    showWebSearch = false,
+    isWebSearchEnabled = false,
+    onWebSearchToggle,
     initialInputText,
     onInitialTextConsumed,
     textInputProps,
@@ -1164,6 +1173,9 @@ export const ChatView = observer(
                   sendButtonVisibilityMode,
                   showImageUpload,
                   isVisionEnabled,
+                  showWebSearch,
+                  isWebSearchEnabled,
+                  onWebSearchToggle,
                   defaultImages: inputImages,
                   onDefaultImagesChange: setInputImages,
                   textInputProps: {
