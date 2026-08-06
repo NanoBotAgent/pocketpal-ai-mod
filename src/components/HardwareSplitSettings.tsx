@@ -102,8 +102,7 @@ export const HardwareSplitSettings = observer(() => {
           ]}>
           Custom: {hardwareSplitStore.gpuPercentage}% GPU
         </Text>
-        <View
-          style={[styles.sliderTrack, {backgroundColor: c.surfaceVariant}]}>
+        <View style={[styles.sliderTrack, {backgroundColor: c.surfaceVariant}]}>
           <View
             style={[
               styles.sliderFill,
