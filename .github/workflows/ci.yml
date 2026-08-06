@@ -94,6 +94,20 @@ jobs:
       # Step 5: Run linters (ESLint)
       - name: Run ESLint
         run: yarn lint
+        continue-on-error: true
+
+      - name: ESLint debug (show all errors)
+        if: always()
+        run: |
+          echo "::group::Full ESLint output"
+          yarn lint 2>&1 || true
+          echo "::endgroup::"
+          echo "::group::Prettier check on changed files"
+          npx prettier --check "src/**/*.{ts,tsx}" 2>&1 || true
+          echo "::endgroup::"
+
+      - name: Fail if ESLint had errors
+        run: yarn lint
 
       # Step 5: Run TypeScript type checks
       - name: Run TypeScript type check
