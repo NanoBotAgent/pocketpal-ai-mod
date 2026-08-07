@@ -23,6 +23,9 @@ export const SEARCH_PROVIDERS: SearchProviderMeta[] = [
   {id: 'brave', label: 'Brave', selectable: true},
   {id: 'exa', label: 'Exa', selectable: true},
   {id: 'parallel', label: 'Parallel', selectable: false},
+  {id: 'firecrawl', label: 'Firecrawl', selectable: true},
+  {id: 'jina', label: 'Jina', selectable: true},
+  {id: 'langsearch', label: 'LangSearch', selectable: true},
 ];
 
 const DEFAULT_PROVIDER: SearchProviderId = 'brave';
