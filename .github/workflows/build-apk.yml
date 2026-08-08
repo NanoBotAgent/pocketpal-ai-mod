@@ -231,4 +231,6 @@ jobs:
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
             adb install -r apk/*.apk
             adb install -r test-apk/*.apk
-            adb shell am instrument -w -r -e class com.nebulaai.MainActivityTest com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
+            adb shell am instrument -w -r \
+              -e class com.nebulaai.MainActivityTest,com.nebulaai.AppInstrumentedTest \
+              com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
