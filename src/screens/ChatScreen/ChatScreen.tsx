@@ -74,7 +74,7 @@ export const ChatScreen: React.FC = observer(() => {
   const [errorToReport, setErrorToReport] = useState<ErrorState | null>(null);
 
   const {handleSendPress, handleStopPress, isMultimodalEnabled} =
-    useChatSession(currentMessageInfo, user, assistant);
+    useChatSession(currentMessageInfo, user, assistant, webSearchEnabled);
 
   // Handle deep linking for message prefill
   const {pendingMessage, clearPendingMessage} = usePendingMessage();

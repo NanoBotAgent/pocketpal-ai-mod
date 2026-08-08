@@ -34,6 +34,7 @@ import {
 } from '../utils/completionTypes';
 import {
   collectSystemPromptFragments,
+  deriveToolSchemas,
   seedReadUrlAllowlist,
   talentRegistry,
 } from '../services/talents';
@@ -61,6 +62,7 @@ const prepareCompletion = async ({
   isMultimodalEnabled,
   l10n,
   currentMessages,
+  webSearchEnabled: _webSearchEnabled,
 }: {
   imageUris: string[];
   message: MessageType.PartialText;
@@ -71,6 +73,7 @@ const prepareCompletion = async ({
   isMultimodalEnabled: boolean;
   l10n: any;
   currentMessages: MessageType.Any[];
+  webSearchEnabled: boolean;
 }) => {
   const sessionCompletionSettings =
     await chatSessionStore.getCurrentCompletionSettings();
@@ -132,9 +135,12 @@ const prepareCompletion = async ({
 
   // Talent-contributed system-prompt fragments (e.g. search grounding). Kept on
   // the initial messages array so they persist across every follow-up tool turn.
-  const sessionToolNames = (
+  let sessionToolNames = (
     (sessionCompletionSettings?.tools as ToolDefinition[] | undefined) ?? []
   ).map(tool => tool.function?.name ?? '');
+  if (_webSearchEnabled) {
+    sessionToolNames = [...sessionToolNames, 'web_search', 'read_url'];
+  }
   const systemPromptFragments = collectSystemPromptFragments(sessionToolNames, {
     now: new Date(),
     maxToolTurns: DEFAULT_MAX_TURNS,
@@ -475,6 +481,7 @@ export const useChatSession = (
   } | null>,
   user: User,
   assistant: User,
+  webSearchEnabled: boolean = false,
 ) => {
   const l10n = React.useContext(L10nContext);
   const conversationIdRef = useRef<string>(randId());
@@ -571,13 +578,17 @@ export const useChatSession = (
       isMultimodalEnabled,
       l10n,
       currentMessages,
+      webSearchEnabled,
     });
 
     currentMessageInfo.current = messageInfo;
 
     // Allowed talent names for this Pal. The runner rejects any
     // tool call whose function.name isn't in this list.
-    const palTalents = (pal?.pact?.talents ?? []).map(t => t.name);
+    let palTalents = (pal?.pact?.talents ?? []).map(t => t.name);
+    if (webSearchEnabled) {
+      palTalents = [...palTalents, 'web_search', 'read_url'];
+    }
 
     abortRef.current = new AbortController();
     const completionStartTime = Date.now();
@@ -598,8 +609,19 @@ export const useChatSession = (
     // defeating marker detection. Failure is non-fatal: we fall back
     // to `[]` and let `tool_call_started` drive the UX flip (one beat
     // later) instead of `marker_seen`.
-    const tools =
+    let tools =
       (cleanCompletionParams.tools as ToolDefinition[] | undefined) ?? [];
+    if (webSearchEnabled) {
+      const searchSchema = deriveToolSchemas(['web_search', 'read_url']);
+      if (searchSchema.length > 0) {
+        const existingNames = new Set(tools.map(t => t.function?.name));
+        tools = [
+          ...tools,
+          ...searchSchema.filter(s => !existingNames.has(s.function?.name)),
+        ];
+        cleanCompletionParams.tools = tools;
+      }
+    }
     let triggerMarkers: string[] = [];
     // Marker detection reads `grammar_triggers` from a local Jinja
     // `getFormattedChat` call — only meaningful when a local llama.rn
