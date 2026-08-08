@@ -94,15 +94,22 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build debug APK
+      - name: Build debug APK and test APK
         working-directory: android
-        run: ./gradlew assembleProdDebug --no-daemon --stacktrace
+        run: ./gradlew assembleProdDebug assembleProdDebugAndroidTest --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: NebulaAI-debug-apk
           path: android/app/build/outputs/apk/prod/debug/*.apk
+          retention-days: 30
+
+      - name: Upload test APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NebulaAI-test-apk
+          path: android/app/build/outputs/apk/androidTest/prod/debug/*.apk
           retention-days: 30
 
   test-on-emulator:
@@ -198,7 +205,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: NebulaAI-debug-apk
-          path: android/app/build/outputs/apk/prod/debug/
+          path: apk/
+
+      - name: Download test APK from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: NebulaAI-test-apk
+          path: test-apk/
 
       - name: Enable KVM
         run: |
@@ -216,5 +229,6 @@ jobs:
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -memory 2048
           script: |
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
-            adb install -r android/app/build/outputs/apk/prod/debug/*.apk
-            cd android && ./gradlew connectedProdDebugAndroidTest --no-daemon --stacktrace
+            adb install -r apk/*.apk
+            adb install -r test-apk/*.apk
+            adb shell am instrument -w -r -e class com.nebulaai.MainActivityTest com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
