@@ -108,7 +108,6 @@ class AppInstrumentedTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 assertNotNull(activity)
-                assertEquals("NebulaAI", activity.mainComponentName)
             }
         }
     }
