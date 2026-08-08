@@ -613,15 +613,6 @@ export const ChatInput = observer(
                     }
                     strokeWidth={2}
                   />
-                  <Text
-                    style={[
-                      styles.thinkingToggleText,
-                      isWebSearchEnabled
-                        ? {color: inputBackgroundColor}
-                        : {color: onSurfaceColorVariant},
-                    ]}>
-                    {l10n.components.chatInput.webSearchToggle.searchText}
-                  </Text>
                 </TouchableOpacity>
               )}
 
