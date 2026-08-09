@@ -111,12 +111,12 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: false
-          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -memory 2048
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -memory 8192
           script: |
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done]'
             adb install -r android/app/build/outputs/apk/prod/debug/*.apk
             adb install -r android/app/build/outputs/apk/androidTest/prod/debug/*.apk
-            adb shell am instrument -w -r -e class com.nebulaai.MainActivityTest,com.nebulaai.AppInstrumentedTest,com.nebulaai.NativeModulesTest com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
+            adb shell am instrument -w -r -e class com.nebulaai.MainActivityTest,com.nebulaai.AppInstrumentedTest,com.nebulaai.NativeModulesTest,com.nebulaai.ColorRenderTest,com.nebulaai.ModelInferenceTest com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
