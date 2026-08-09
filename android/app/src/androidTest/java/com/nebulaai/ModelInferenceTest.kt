@@ -136,6 +136,10 @@ class ModelInferenceTest {
                     initResult[1] = "$code: ${e?.message}"
                     initLatch.countDown()
                 }
+                override fun reject(e: Throwable?) {
+                    initResult[1] = "error: ${e?.message}"
+                    initLatch.countDown()
+                }
             }
 
             initLlama.invoke(moduleInstance, params, promise)
@@ -171,7 +175,7 @@ class ModelInferenceTest {
             System.load(File(nativeLibDir, "librnllm.so").absolutePath)
 
             val nativeClass = Class.forName("com.rnllm.LlamaModule")
-            valnativeMethod = nativeClass.getDeclaredMethod("nativeInit", String::class.java, Int::class.java, Int::class.java)
+            val nativeMethod = nativeClass.getDeclaredMethod("nativeInit", String::class.java, Int::class.java, Int::class.java)
             nativeMethod.isAccessible = true
             val contextId = nativeMethod.invoke(null, modelPath, 2048, 2) as Long
             assertTrue("Native context ID should be positive", contextId > 0)
@@ -188,7 +192,8 @@ class ModelInferenceTest {
 
         try {
             val llamaModule = Class.forName("com.rnllm.LlamaModule")
-            val moduleInstance = context.getNativeModule(
+            val reactContext = com.facebook.react.bridge.ReactApplicationContext(context)
+            val moduleInstance = reactContext.getNativeModule(
                 Class.forName("com.rnllm.LlamaModule") as Class<out com.facebook.react.bridge.NativeModule>
             )
 
@@ -231,6 +236,10 @@ class ModelInferenceTest {
                     completionResult[1] = "$code: ${e?.message}"
                     completionLatch.countDown()
                 }
+                override fun reject(e: Throwable?) {
+                    completionResult[1] = "error: ${e?.message}"
+                    completionLatch.countDown()
+                }
             }
 
             completionMethod.invoke(moduleInstance, promptMap, promise)
@@ -255,7 +264,8 @@ class ModelInferenceTest {
     private fun releaseContext(contextId: Long) {
         try {
             val llamaModule = Class.forName("com.rnllm.LlamaModule")
-            val moduleInstance = context.getNativeModule(
+            val reactContext = com.facebook.react.bridge.ReactApplicationContext(context)
+            val moduleInstance = reactContext.getNativeModule(
                 Class.forName("com.rnllm.LlamaModule") as Class<out com.facebook.react.bridge.NativeModule>
             )
             val releaseMethod = llamaModule.getDeclaredMethod(
@@ -270,6 +280,7 @@ class ModelInferenceTest {
                 override fun reject(code: String, message: String?, e: Throwable?) { latch.countDown() }
                 override fun reject(code: String, message: String?, e: Throwable?, userInfo: com.facebook.react.bridge.WritableMap?) { latch.countDown() }
                 override fun reject(code: String, e: Throwable?) { latch.countDown() }
+                override fun reject(e: Throwable?) { latch.countDown() }
             }
             releaseMethod.invoke(moduleInstance, contextId.toDouble(), promise)
             latch.await(30, TimeUnit.SECONDS)
