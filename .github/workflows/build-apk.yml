@@ -105,7 +105,7 @@ jobs:
           sudo udevadm trigger
 
       - name: Run Android Emulator Tests
-        uses: ReactiveCircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           target: google_apis
@@ -116,9 +116,7 @@ jobs:
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
             adb install -r android/app/build/outputs/apk/prod/debug/*.apk
             adb install -r android/app/build/outputs/apk/androidTest/prod/debug/*.apk
-            adb shell am instrument -w -r \
-              -e class com.nebulaai.MainActivityTest,com.nebulaai.AppInstrumentedTest \
-              com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
+            adb shell am instrument -w -r -e class com.nebulaai.MainActivityTest,com.nebulaai.AppInstrumentedTest com.nebulaai.test/androidx.test.runner.AndroidJUnitRunner
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
