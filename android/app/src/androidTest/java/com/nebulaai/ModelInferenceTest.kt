@@ -1,8 +1,6 @@
 package com.nebulaai
 
 import android.content.Context
-import android.os.Build
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.facebook.react.bridge.Promise
@@ -36,7 +34,6 @@ class ModelInferenceTest {
     companion object {
         private const val MODEL_HF_URL = "https://huggingface.co/RockMan256/MiniCPM5-1B-Q8_0-GGUF/resolve/main/MiniCPM5-1B.Q8_0.gguf"
         private const val MODEL_FILENAME = "MiniCPM5-1B.Q8_0.gguf"
-        private const val DOWNLOAD_TIMEOUT_SEC = 300L
         private const val INFERENCE_TIMEOUT_SEC = 120L
         private const val MAX_TOKENS = 64
     }
