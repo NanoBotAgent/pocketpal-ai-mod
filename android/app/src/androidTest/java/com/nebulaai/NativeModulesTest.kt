@@ -22,17 +22,13 @@ class NativeModulesTest {
     private fun makePromise(latch: java.util.concurrent.CountDownLatch, result: Array<String?>): Promise {
         return object : Promise {
             override fun resolve(value: Any?) { result[0] = value?.toString(); latch.countDown() }
-            override fun reject(code: String, message: String?) { result[1] = code; latch.countDown() }
-            override fun reject(code: String, message: String?, e: Throwable?) { result[1] = code; latch.countDown() }
-            override fun reject(code: String, e: Throwable?) { result[1] = code; latch.countDown() }
-            override fun reject(code: String, message: String?, e: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
-            override fun reject(e: Throwable) { result[1] = "error"; latch.countDown() }
-            override fun reject(e: Throwable, userInfo: WritableMap) { result[1] = "error"; latch.countDown() }
-            override fun reject(code: String, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
-            override fun reject(message: String) { result[1] = message; latch.countDown() }
+            override fun reject(code: String?, message: String?) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, e: Throwable?) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, e: Throwable?) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, e: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
         }
     }
 
@@ -208,8 +204,9 @@ class NativeModulesTest {
 
     @Test
     fun nativeLibraryDir_containsSoFiles() {
-        val nativeLibDir = java.io.File(context.applicationInfo.nativeLibraryDir)
-        assertTrue("Native lib dir should exist", nativeLibDir.exists())
+        val nativeLibDir = context.applicationInfo?.nativeLibraryDir?.let { java.io.File(it) }
+        assertNotNull("Native lib dir path should be available", nativeLibDir)
+        assertTrue("Native lib dir should exist", nativeLibDir!!.exists())
         val soFiles = nativeLibDir.listFiles { _, name -> name.endsWith(".so") }
         assertNotNull("Should be able to list .so files", soFiles)
         assertTrue("Should have at least one .so file", soFiles!!.isNotEmpty())
@@ -236,7 +233,7 @@ class NativeModulesTest {
     fun appUsesRtlSupport() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
         assertTrue("App should declare supportsRtl",
-            info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_SUPPORTS_RTL != 0)
+            info.applicationInfo!!.flags and android.content.pm.ApplicationInfo.FLAG_SUPPORTS_RTL != 0)
     }
 
     @Test
@@ -286,13 +283,13 @@ class NativeModulesTest {
     @Test
     fun appAllowsBackup_fromFlags() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        assertTrue(info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP != 0)
+        assertTrue(info.applicationInfo!!.flags and android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP != 0)
     }
 
     @Test
     fun appHardwareAccelerated_fromFlags() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        assertTrue(info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_HARDWARE_ACCELERATED != 0)
+        assertTrue(info.applicationInfo!!.flags and android.content.pm.ApplicationInfo.FLAG_HARDWARE_ACCELERATED != 0)
     }
 
     @Test
@@ -360,7 +357,7 @@ class NativeModulesTest {
     @Test
     fun appCodePath_exists() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        val apkFile = java.io.File(info.applicationInfo.sourceDir)
+        val apkFile = java.io.File(info.applicationInfo!!.sourceDir)
         assertTrue("APK file should exist", apkFile.exists())
         assertTrue("APK file should be non-empty", apkFile.length() > 0)
     }
