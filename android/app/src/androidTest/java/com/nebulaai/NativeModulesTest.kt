@@ -40,48 +40,60 @@ class NativeModulesTest {
         return latch.await(timeoutSec, java.util.concurrent.TimeUnit.SECONDS)
     }
 
+    private fun tryInstantiateModule(className: String, reactContext: ReactApplicationContext): Any? {
+        return try {
+            val clazz = Class.forName(className)
+            val constructor = clazz.getConstructor(ReactApplicationContext::class.java)
+            constructor.newInstance(reactContext)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     @Test
     fun hardwareInfoModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = HardwareInfoModule(reactContext)
-        assertNotNull(module)
+        val module = tryInstantiateModule("com.nebulaai.HardwareInfoModule", reactContext)
+        assertNotNull("HardwareInfoModule should instantiate", module)
     }
 
     @Test
     fun keepAwakeModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = KeepAwakeModule(reactContext)
-        assertNotNull(module)
+        val module = tryInstantiateModule("com.nebulaai.KeepAwakeModule", reactContext)
+        assertNotNull("KeepAwakeModule should instantiate", module)
     }
 
     @Test
     fun storefrontModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = StorefrontModule(reactContext)
-        assertNotNull(module)
+        val module = tryInstantiateModule("com.nebulaai.StorefrontModule", reactContext)
+        assertNotNull("StorefrontModule should instantiate", module)
     }
 
     @Test
     fun authSessionModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = AuthSessionModule(reactContext)
-        assertNotNull(module)
+        val module = tryInstantiateModule("com.nebulaai.AuthSessionModule", reactContext)
+        assertNotNull("AuthSessionModule should instantiate", module)
     }
 
     @Test
     fun externalContentLinkModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = ExternalContentLinkModule(reactContext)
-        assertNotNull(module)
+        val module = tryInstantiateModule("com.nebulaai.ExternalContentLinkModule", reactContext)
+        assertNotNull("ExternalContentLinkModule should instantiate", module)
     }
 
     @Test
     fun storefrontModule_resolvesCountryCode() {
         val reactContext = ReactApplicationContext(context)
-        val module = StorefrontModule(reactContext)
+        val module = tryInstantiateModule("com.nebulaai.StorefrontModule", reactContext)
+            ?: fail("StorefrontModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
         val result = arrayOfNulls<String>(2)
-        module.getCountryCode(makePromise(latch, result))
+        val getCountryCode = module.javaClass.getMethod("getCountryCode", Promise::class.java)
+        getCountryCode.invoke(module, makePromise(latch, result))
         assertTrue("Promise should resolve", await(latch))
         assertNull("Should not reject", result[1])
     }
@@ -89,10 +101,12 @@ class NativeModulesTest {
     @Test
     fun authSessionModule_rejectsWithoutActivity() {
         val reactContext = ReactApplicationContext(context)
-        val module = AuthSessionModule(reactContext)
+        val module = tryInstantiateModule("com.nebulaai.AuthSessionModule", reactContext)
+            ?: fail("AuthSessionModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
         val result = arrayOfNulls<String>(2)
-        module.openAuth("https://example.com", "pocketpal", makePromise(latch, result))
+        val openAuth = module.javaClass.getMethod("openAuth", String::class.java, String::class.java, Promise::class.java)
+        openAuth.invoke(module, "https://example.com", "pocketpal", makePromise(latch, result))
         assertTrue("Promise should settle", await(latch))
         assertEquals("no_activity", result[1])
     }
@@ -100,22 +114,27 @@ class NativeModulesTest {
     @Test
     fun authSessionModule_handleIntent_nullReturnsFalse() {
         val reactContext = ReactApplicationContext(context)
-        val module = AuthSessionModule(reactContext)
-        assertFalse(module.handleIntent(null))
-        assertFalse(module.handleIntent(Intent()))
+        val module = tryInstantiateModule("com.nebulaai.AuthSessionModule", reactContext)
+            ?: fail("AuthSessionModule should instantiate")
+        val handleIntent = module.javaClass.getMethod("handleIntent", Intent::class.java)
+        assertFalse(handleIntent.invoke(module, null) as Boolean)
+        assertFalse(handleIntent.invoke(module, Intent()) as Boolean)
     }
 
     @Test
     fun authSessionModule_rejectsSecondConcurrentAuth() {
         val reactContext = ReactApplicationContext(context)
-        val module = AuthSessionModule(reactContext)
+        val module = tryInstantiateModule("com.nebulaai.AuthSessionModule", reactContext)
+            ?: fail("AuthSessionModule should instantiate")
+        val openAuth = module.javaClass.getMethod("openAuth", String::class.java, String::class.java, Promise::class.java)
+
         val latch1 = java.util.concurrent.CountDownLatch(1)
         val result1 = arrayOfNulls<String>(2)
-        module.openAuth("https://example.com", "pocketpal", makePromise(latch1, result1))
+        openAuth.invoke(module, "https://example.com", "pocketpal", makePromise(latch1, result1))
         await(latch1)
         val latch2 = java.util.concurrent.CountDownLatch(1)
         val result2 = arrayOfNulls<String>(2)
-        module.openAuth("https://example2.com", "pocketpal", makePromise(latch2, result2))
+        openAuth.invoke(module, "https://example2.com", "pocketpal", makePromise(latch2, result2))
         assertTrue("Second promise should settle", await(latch2))
         val anyRejected = result1[1] != null || result2[1] != null
         assertTrue("At least one should reject (no_activity or auth_in_flight)", anyRejected)
@@ -124,26 +143,30 @@ class NativeModulesTest {
     @Test
     fun downloadModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = com.nebulaai.download.DownloadModule(reactContext)
-        assertNotNull(module)
-        assertEquals("NativeDownloadModuleSpec", module.name)
+        val module = tryInstantiateModule("com.nebulaai.download.DownloadModule", reactContext)
+        assertNotNull("DownloadModule should instantiate", module)
+        val getName = module!!.javaClass.getMethod("getName")
+        assertEquals("NativeDownloadModuleSpec", getName.invoke(module))
     }
 
     @Test
     fun pocketPalModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        val module = com.nebulaai.pocketpal.PocketPalModule(reactContext)
-        assertNotNull(module)
-        assertEquals("PocketPalModule", module.name)
+        val module = tryInstantiateModule("com.nebulaai.pocketpal.PocketPalModule", reactContext)
+        assertNotNull("PocketPalModule should instantiate", module)
+        val getName = module!!.javaClass.getMethod("getName")
+        assertEquals("PocketPalModule", getName.invoke(module))
     }
 
     @Test
     fun pocketPalModule_isPocketPalInstalled_resolves() {
         val reactContext = ReactApplicationContext(context)
-        val module = com.nebulaai.pocketpal.PocketPalModule(reactContext)
+        val module = tryInstantiateModule("com.nebulaai.pocketpal.PocketPalModule", reactContext)
+            ?: fail("PocketPalModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
         val result = arrayOfNulls<String>(2)
-        module.isPocketPalInstalled(makePromise(latch, result))
+        val isPocketPalInstalled = module.javaClass.getMethod("isPocketPalInstalled", Promise::class.java)
+        isPocketPalInstalled.invoke(module, makePromise(latch, result))
         assertTrue("Should resolve within timeout", await(latch, 10))
         assertNull("Should not reject", result[1])
     }
@@ -185,7 +208,7 @@ class NativeModulesTest {
 
     @Test
     fun nativeLibraryDir_containsSoFiles() {
-        val nativeLibDir = java.io.File(context.applicationInfo?.nativeLibraryDir ?: "")
+        val nativeLibDir = java.io.File(context.applicationInfo.nativeLibraryDir)
         assertTrue("Native lib dir should exist", nativeLibDir.exists())
         val soFiles = nativeLibDir.listFiles { _, name -> name.endsWith(".so") }
         assertNotNull("Should be able to list .so files", soFiles)
@@ -213,7 +236,7 @@ class NativeModulesTest {
     fun appUsesRtlSupport() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
         assertTrue("App should declare supportsRtl",
-            info.applicationInfo?.flags?.let { it and android.content.pm.ApplicationInfo.FLAG_SUPPORTS_RTL != 0 } ?: false)
+            info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_SUPPORTS_RTL != 0)
     }
 
     @Test
@@ -263,13 +286,13 @@ class NativeModulesTest {
     @Test
     fun appAllowsBackup_fromFlags() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        assertTrue(info.applicationInfo?.flags?.let { it and android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP != 0 } ?: false)
+        assertTrue(info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP != 0)
     }
 
     @Test
     fun appHardwareAccelerated_fromFlags() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        assertTrue(info.applicationInfo?.flags?.let { it and android.content.pm.ApplicationInfo.FLAG_HARDWARE_ACCELERATED != 0 } ?: false)
+        assertTrue(info.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_HARDWARE_ACCELERATED != 0)
     }
 
     @Test
@@ -337,7 +360,7 @@ class NativeModulesTest {
     @Test
     fun appCodePath_exists() {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        val apkFile = java.io.File(info.applicationInfo?.sourceDir ?: "")
+        val apkFile = java.io.File(info.applicationInfo.sourceDir)
         assertTrue("APK file should exist", apkFile.exists())
         assertTrue("APK file should be non-empty", apkFile.length() > 0)
     }
