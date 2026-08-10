@@ -45,6 +45,10 @@ class ModelInferenceTest {
         }
     }
 
+    private fun createReactContext(): ReactApplicationContext {
+        return ReactApplicationContext(context)
+    }
+
     private fun downloadModel(): File {
         val modelDir = File(context.getExternalFilesDir(null), "models")
         modelDir.mkdirs()
@@ -108,7 +112,7 @@ class ModelInferenceTest {
     }
 
     private fun loadLlamaContext(modelPath: String): Long {
-        val reactContext = ReactApplicationContext(context)
+        val reactContext = createReactContext()
 
         val initLatch = CountDownLatch(1)
         val initResult = arrayOfNulls<Any>(2)
@@ -163,7 +167,7 @@ class ModelInferenceTest {
 
         try {
             val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
-            val reactContext = ReactApplicationContext(context)
+            val reactContext = createReactContext()
             val moduleInstance = getLlamaModule(reactContext)
             assertNotNull("LlamaModule instance should not be null", moduleInstance)
 
@@ -209,7 +213,7 @@ class ModelInferenceTest {
     private fun releaseContext(contextId: Long) {
         try {
             val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
-            val reactContext = ReactApplicationContext(context)
+            val reactContext = createReactContext()
             val moduleInstance = getLlamaModule(reactContext)
             val releaseMethod = llamaModuleClass.getDeclaredMethod(
                 "releaseContext",
