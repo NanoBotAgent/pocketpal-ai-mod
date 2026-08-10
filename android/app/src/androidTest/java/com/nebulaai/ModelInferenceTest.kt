@@ -5,8 +5,10 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.WritableMap
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -37,6 +39,23 @@ class ModelInferenceTest {
         private const val DOWNLOAD_TIMEOUT_SEC = 300L
         private const val INFERENCE_TIMEOUT_SEC = 120L
         private const val MAX_TOKENS = 64
+    }
+
+    private fun makePromise(latch: CountDownLatch, result: Array<Any?>): Promise {
+        return object : Promise {
+            override fun resolve(value: Any?) { result[0] = value; latch.countDown() }
+            override fun reject(code: String, message: String?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(code: String, message: String?, e: Throwable?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(code: String, e: Throwable?) { result[1] = "$code: ${e?.message}"; latch.countDown() }
+            override fun reject(code: String, message: String?, e: Throwable?, userInfo: WritableMap?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(e: Throwable) { result[1] = "error: ${e.message}"; latch.countDown() }
+            override fun reject(e: Throwable, userInfo: WritableMap) { result[1] = "error: ${e.message}"; latch.countDown() }
+            override fun reject(code: String, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
+            override fun reject(message: String) { result[1] = message; latch.countDown() }
+        }
     }
 
     private fun downloadModel(): File {
@@ -87,8 +106,22 @@ class ModelInferenceTest {
         return modelFile
     }
 
+    private fun getLlamaModule(reactContext: ReactApplicationContext): Any? {
+        return try {
+            val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
+            val getNativeModuleMethod = ReactApplicationContext::class.java.getMethod(
+                "getNativeModule",
+                Class::class.java
+            )
+            getNativeModuleMethod.invoke(reactContext, llamaModuleClass)
+        } catch (e: Exception) {
+            println("[ModelInferenceTest] Could not get LlamaModule instance: ${e.message}")
+            null
+        }
+    }
+
     private fun loadLlamaContext(modelPath: String): Long {
-        val reactContext = com.facebook.react.bridge.ReactApplicationContext(context)
+        val reactContext = ReactApplicationContext(context)
 
         val initLatch = CountDownLatch(1)
         val initResult = arrayOfNulls<Any>(2)
@@ -104,43 +137,17 @@ class ModelInferenceTest {
         }
 
         try {
-            val llamaModule = Class.forName("com.rnllm.LlamaModule")
-            val initLlama = llamaModule.getDeclaredMethod(
+            val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
+            val initLlama = llamaModuleClass.getDeclaredMethod(
                 "initLlama",
                 com.facebook.react.bridge.ReadableMap::class.java,
-                com.facebook.react.bridge.Promise::class.java
+                Promise::class.java
             )
 
-            val moduleInstance = reactContext.getNativeModule(
-                Class.forName("com.rnllm.LlamaModule") as Class<out com.facebook.react.bridge.NativeModule>
-            )
+            val moduleInstance = getLlamaModule(reactContext)
+            assertNotNull("LlamaModule instance should not be null", moduleInstance)
 
-            val promise = object : com.facebook.react.bridge.Promise {
-                override fun resolve(value: Any?) {
-                    initResult[0] = value
-                    initLatch.countDown()
-                }
-                override fun reject(code: String, message: String?) {
-                    initResult[1] = "$code: $message"
-                    initLatch.countDown()
-                }
-                override fun reject(code: String, message: String?, e: Throwable?) {
-                    initResult[1] = "$code: $message"
-                    initLatch.countDown()
-                }
-                override fun reject(code: String, message: String?, e: Throwable?, userInfo: com.facebook.react.bridge.WritableMap?) {
-                    initResult[1] = "$code: $message"
-                    initLatch.countDown()
-                }
-                override fun reject(code: String, e: Throwable?) {
-                    initResult[1] = "$code: ${e?.message}"
-                    initLatch.countDown()
-                }
-                override fun reject(e: Throwable?) {
-                    initResult[1] = "error: ${e?.message}"
-                    initLatch.countDown()
-                }
-            }
+            val promise = makePromise(initLatch, initResult)
 
             initLlama.invoke(moduleInstance, params, promise)
             assertTrue("Model init should complete within timeout",
@@ -157,31 +164,8 @@ class ModelInferenceTest {
             println("[ModelInferenceTest] Llama context loaded: $contextId")
             return contextId
         } catch (e: ClassNotFoundException) {
-            println("[ModelInferenceTest] llama.rn module not found, trying native load: ${e.message}")
-            return loadLlamaNative(modelPath)
-        }
-    }
-
-    private fun loadLlamaNative(modelPath: String): Long {
-        try {
-            val nativeLibDir = File(context.applicationInfo.nativeLibraryDir)
-            assertTrue("Native lib dir should exist", nativeLibDir.exists())
-
-            val soFiles = nativeLibDir.listFiles { _, name ->
-                name.contains("llama") || name.contains("rnllm")
-            }
-            assertNotNull("Should find llama .so files", soFiles)
-
-            System.load(File(nativeLibDir, "librnllm.so").absolutePath)
-
-            val nativeClass = Class.forName("com.rnllm.LlamaModule")
-            val nativeMethod = nativeClass.getDeclaredMethod("nativeInit", String::class.java, Int::class.java, Int::class.java)
-            nativeMethod.isAccessible = true
-            val contextId = nativeMethod.invoke(null, modelPath, 2048, 2) as Long
-            assertTrue("Native context ID should be positive", contextId > 0)
-            return contextId
-        } catch (e: Exception) {
-            fail("Failed to load llama native library: ${e.message}")
+            println("[ModelInferenceTest] llama.rn module not found: ${e.message}")
+            fail("llama.rn LlamaModule class not found: ${e.message}")
             return -1
         }
     }
@@ -191,11 +175,10 @@ class ModelInferenceTest {
         val completionResult = arrayOfNulls<Any>(2)
 
         try {
-            val llamaModule = Class.forName("com.rnllm.LlamaModule")
-            val reactContext = com.facebook.react.bridge.ReactApplicationContext(context)
-            val moduleInstance = reactContext.getNativeModule(
-                Class.forName("com.rnllm.LlamaModule") as Class<out com.facebook.react.bridge.NativeModule>
-            )
+            val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
+            val reactContext = ReactApplicationContext(context)
+            val moduleInstance = getLlamaModule(reactContext)
+            assertNotNull("LlamaModule instance should not be null", moduleInstance)
 
             val promptMap = com.facebook.react.bridge.Arguments.createMap().apply {
                 putDouble("contextId", contextId.toDouble())
@@ -209,38 +192,13 @@ class ModelInferenceTest {
                 }
             }
 
-            val completionMethod = llamaModule.getDeclaredMethod(
+            val completionMethod = llamaModuleClass.getDeclaredMethod(
                 "completion",
                 com.facebook.react.bridge.ReadableMap::class.java,
-                com.facebook.react.bridge.Promise::class.java
+                Promise::class.java
             )
 
-            val promise = object : com.facebook.react.bridge.Promise {
-                override fun resolve(value: Any?) {
-                    completionResult[0] = value
-                    completionLatch.countDown()
-                }
-                override fun reject(code: String, message: String?) {
-                    completionResult[1] = "$code: $message"
-                    completionLatch.countDown()
-                }
-                override fun reject(code: String, message: String?, e: Throwable?) {
-                    completionResult[1] = "$code: $message"
-                    completionLatch.countDown()
-                }
-                override fun reject(code: String, message: String?, e: Throwable?, userInfo: com.facebook.react.bridge.WritableMap?) {
-                    completionResult[1] = "$code: $message"
-                    completionLatch.countDown()
-                }
-                override fun reject(code: String, e: Throwable?) {
-                    completionResult[1] = "$code: ${e?.message}"
-                    completionLatch.countDown()
-                }
-                override fun reject(e: Throwable?) {
-                    completionResult[1] = "error: ${e?.message}"
-                    completionLatch.countDown()
-                }
-            }
+            val promise = makePromise(completionLatch, completionResult)
 
             completionMethod.invoke(moduleInstance, promptMap, promise)
             assertTrue("Completion should finish within timeout",
@@ -263,25 +221,17 @@ class ModelInferenceTest {
 
     private fun releaseContext(contextId: Long) {
         try {
-            val llamaModule = Class.forName("com.rnllm.LlamaModule")
-            val reactContext = com.facebook.react.bridge.ReactApplicationContext(context)
-            val moduleInstance = reactContext.getNativeModule(
-                Class.forName("com.rnllm.LlamaModule") as Class<out com.facebook.react.bridge.NativeModule>
-            )
-            val releaseMethod = llamaModule.getDeclaredMethod(
+            val llamaModuleClass = Class.forName("com.rnllm.LlamaModule")
+            val reactContext = ReactApplicationContext(context)
+            val moduleInstance = getLlamaModule(reactContext)
+            val releaseMethod = llamaModuleClass.getDeclaredMethod(
                 "releaseContext",
                 java.lang.Double::class.java,
-                com.facebook.react.bridge.Promise::class.java
+                Promise::class.java
             )
             val latch = CountDownLatch(1)
-            val promise = object : com.facebook.react.bridge.Promise {
-                override fun resolve(value: Any?) { latch.countDown() }
-                override fun reject(code: String, message: String?) { latch.countDown() }
-                override fun reject(code: String, message: String?, e: Throwable?) { latch.countDown() }
-                override fun reject(code: String, message: String?, e: Throwable?, userInfo: com.facebook.react.bridge.WritableMap?) { latch.countDown() }
-                override fun reject(code: String, e: Throwable?) { latch.countDown() }
-                override fun reject(e: Throwable?) { latch.countDown() }
-            }
+            val result = arrayOfNulls<Any>(2)
+            val promise = makePromise(latch, result)
             releaseMethod.invoke(moduleInstance, contextId.toDouble(), promise)
             latch.await(30, TimeUnit.SECONDS)
             println("[ModelInferenceTest] Released context $contextId")
@@ -331,12 +281,10 @@ class ModelInferenceTest {
         try {
             val prompt = "What is the capital of France?"
 
-            // Run without search (search OFF) - pure model knowledge
             val resultWithoutSearch = runCompletion(contextId, prompt)
             assertTrue("Inference without search should produce text",
                 resultWithoutSearch.isNotEmpty())
 
-            // Run with search context injected (search ON simulation)
             val searchContextPrompt = """
                 Based on the following search results, answer the question.
 
@@ -354,7 +302,6 @@ class ModelInferenceTest {
             println("[ModelInferenceTest] Without search: ${resultWithoutSearch.take(150)}")
             println("[ModelInferenceTest] With search: ${resultWithSearch.take(150)}")
 
-            // Both should mention Paris
             val combinedResults = (resultWithoutSearch + resultWithSearch).lowercase()
             assertTrue("At least one result should mention Paris",
                 combinedResults.contains("paris"))
@@ -371,10 +318,8 @@ class ModelInferenceTest {
         try {
             val prompt = "Tell me about yourself."
 
-            // Without pal system prompt
             val resultWithoutPal = runCompletion(contextId, prompt)
 
-            // With pal system prompt (simulating pal personality injection)
             val palSystemPrompt = """
                 You are Nebula, a friendly AI companion inside a mobile app.
                 Always introduce yourself as Nebula and be concise, warm, and helpful.
@@ -391,13 +336,9 @@ class ModelInferenceTest {
             println("[ModelInferenceTest] Without pal: ${resultWithoutPal.take(150)}")
             println("[ModelInferenceTest] With pal: ${resultWithPal.take(150)}")
 
-            // With pal prompt, the model should be more likely to mention "Nebula"
-            // or show a personality change. We check for behavioral change.
             val withPalLower = resultWithPal.lowercase()
             val withoutPalLower = resultWithoutPal.lowercase()
 
-            // The pal-influenced response should differ from the plain one
-            // (either shorter, or mentioning Nebula/companion, or different tone)
             val behavioralChange = withPalLower != withoutPalLower &&
                 (withPalLower.contains("nebula") ||
                  withPalLower.contains("companion") ||
@@ -426,7 +367,6 @@ class ModelInferenceTest {
             assertTrue("First completion should produce text", result1.isNotEmpty())
             assertTrue("Second completion should produce text", result2.isNotEmpty())
 
-            // Both should contain "4" somewhere (math fact)
             val combined = (result1 + result2).lowercase()
             assertTrue("At least one result should contain 4",
                 combined.contains("4"))
@@ -444,7 +384,6 @@ class ModelInferenceTest {
         println("[ModelInferenceTest] Available memory: ${memInfo.availMem / 1_000_000_000.0} GB")
         println("[ModelInferenceTest] Total memory: ${memInfo.totalMem / 1_000_000_000.0} GB")
 
-        // With 8GB emulator, we should have at least 4GB available
         assertTrue("Emulator should have at least 4GB available memory for model loading",
             memInfo.availMem > 4_000_000_000L)
     }
