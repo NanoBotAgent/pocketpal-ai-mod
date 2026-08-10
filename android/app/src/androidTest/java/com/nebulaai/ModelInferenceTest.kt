@@ -16,15 +16,6 @@ import java.net.URL
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/**
- * ModelInferenceTest downloads the MiniCPM5-1B-Q8_0 GGUF model from HuggingFace,
- * loads it via llama.rn native library, and tests real LLM inference including:
- * - Basic text generation
- * - Search ON/OFF behavior difference
- * - Pal system prompt injection
- *
- * Requirements: 8GB emulator RAM (-memory 8192) for the 1.2GB Q8 model.
- */
 @RunWith(AndroidJUnit4::class)
 class ModelInferenceTest {
 
@@ -41,12 +32,16 @@ class ModelInferenceTest {
     private fun makePromise(latch: CountDownLatch, result: Array<Any?>): Promise {
         return object : Promise {
             override fun resolve(value: Any?) { result[0] = value; latch.countDown() }
-            override fun reject(code: String?, message: String?) { result[1] = "$code: $message"; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?) { result[1] = "$code: ${throwable?.message}"; latch.countDown() }
-            override fun reject(code: String?, message: String?, throwable: Throwable?) { result[1] = "$code: $message"; latch.countDown() }
-            override fun reject(code: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, message: String?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(code: String, throwable: Throwable?) { result[1] = "$code: ${throwable?.message}"; latch.countDown() }
+            override fun reject(code: String, message: String?, throwable: Throwable?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(throwable: Throwable) { result[1] = throwable.message; latch.countDown() }
+            override fun reject(throwable: Throwable, userInfo: WritableMap) { result[1] = throwable.message; latch.countDown() }
+            override fun reject(code: String, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
+            override fun reject(message: String) { result[1] = message; latch.countDown() }
         }
     }
 
