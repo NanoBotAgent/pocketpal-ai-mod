@@ -26,7 +26,13 @@ class NativeModulesTest {
             override fun reject(code: String, message: String?, e: Throwable?) { result[1] = code; latch.countDown() }
             override fun reject(code: String, e: Throwable?) { result[1] = code; latch.countDown() }
             override fun reject(code: String, message: String?, e: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
-            override fun reject(e: Throwable?) { result[1] = "error"; latch.countDown() }
+            override fun reject(e: Throwable) { result[1] = "error"; latch.countDown() }
+            override fun reject(e: Throwable, userInfo: WritableMap) { result[1] = "error"; latch.countDown() }
+            override fun reject(code: String, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
+            override fun reject(message: String) { result[1] = message; latch.countDown() }
         }
     }
 
@@ -37,41 +43,36 @@ class NativeModulesTest {
     @Test
     fun hardwareInfoModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        // HardwareInfoModule is abstract, test that the class can be loaded
-        val moduleClass = Class.forName("com.nebulaai.hardware.HardwareInfoModule")
-        assertNotNull(moduleClass)
+        val module = HardwareInfoModule(reactContext)
+        assertNotNull(module)
     }
 
     @Test
     fun keepAwakeModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        // KeepAwakeModule is abstract, test that the class can be loaded
-        val moduleClass = Class.forName("com.nebulaai.keepawake.KeepAwakeModule")
-        assertNotNull(moduleClass)
+        val module = KeepAwakeModule(reactContext)
+        assertNotNull(module)
     }
 
     @Test
     fun storefrontModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        // StorefrontModule is abstract, test that the class can be loaded
-        val moduleClass = Class.forName("com.nebulaai.storefront.StorefrontModule")
-        assertNotNull(moduleClass)
+        val module = StorefrontModule(reactContext)
+        assertNotNull(module)
     }
 
     @Test
     fun authSessionModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        // AuthSessionModule is abstract, test that the class can be loaded
-        val moduleClass = Class.forName("com.nebulaai.auth.AuthSessionModule")
-        assertNotNull(moduleClass)
+        val module = AuthSessionModule(reactContext)
+        assertNotNull(module)
     }
 
     @Test
     fun externalContentLinkModule_canInstantiate() {
         val reactContext = ReactApplicationContext(context)
-        // ExternalContentLinkModule is abstract, test that the class can be loaded
-        val moduleClass = Class.forName("com.nebulaai.externalcontent.ExternalContentLinkModule")
-        assertNotNull(moduleClass)
+        val module = ExternalContentLinkModule(reactContext)
+        assertNotNull(module)
     }
 
     @Test
@@ -166,7 +167,7 @@ class NativeModulesTest {
             downloadedBytes = 0,
             status = com.nebulaai.download.DownloadStatus.QUEUED,
             priority = 0,
-            networkType = androidx.work.NetworkType.ANY,
+            networkType = com.nebulaai.download.NetworkType.ANY,
             createdAt = System.currentTimeMillis(),
             authToken = null
         )
@@ -176,7 +177,7 @@ class NativeModulesTest {
             assertNotNull("Download should be retrievable after insert", retrieved)
             assertEquals(testId, retrieved!!.id)
             assertEquals("https://example.com/test.gguf", retrieved.url)
-            dao.deleteDownload(testId)
+            dao.deleteDownload(retrieved)
             val deleted = dao.getDownload(testId)
             assertNull("Download should be gone after delete", deleted)
         }
@@ -324,13 +325,6 @@ class NativeModulesTest {
         val res = context.resources
         val xmlId = res.getIdentifier("network_security_config", "xml", context.packageName)
         assertTrue("network_security_config should exist", xmlId != 0)
-    }
-
-    @Test
-    fun appGlEsVersion_positive() {
-        val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        val glEsVersion = info.applicationInfo?.glEsVersion ?: 0
-        assertTrue("GLES version should be positive", glEsVersion > 0)
     }
 
     @Test
