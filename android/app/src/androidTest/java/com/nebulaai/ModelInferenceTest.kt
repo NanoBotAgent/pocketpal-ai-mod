@@ -32,16 +32,9 @@ class ModelInferenceTest {
     private fun makePromise(latch: CountDownLatch, result: Array<Any?>): Promise {
         return object : Promise {
             override fun resolve(value: Any?) { result[0] = value; latch.countDown() }
-            override fun reject(code: String?, message: String?) { result[1] = "$code: $message"; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?) { result[1] = "$code: ${throwable?.message}"; latch.countDown() }
             override fun reject(code: String?, message: String?, throwable: Throwable?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(code: String?, message: String?) { result[1] = "$code: $message"; latch.countDown() }
             override fun reject(throwable: Throwable) { result[1] = throwable.message; latch.countDown() }
-            override fun reject(throwable: Throwable, userInfo: WritableMap) { result[1] = throwable.message; latch.countDown() }
-            override fun reject(code: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, message: String?, userInfo: WritableMap) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
-            override fun reject(message: String) { result[1] = message; latch.countDown() }
         }
     }
 
