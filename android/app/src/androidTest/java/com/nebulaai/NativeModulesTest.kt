@@ -184,6 +184,7 @@ class NativeModulesTest {
             priority = 0,
             networkType = com.nebulaai.download.NetworkType.ANY,
             createdAt = System.currentTimeMillis(),
+            error = null,
             authToken = null
         )
         runBlocking {
