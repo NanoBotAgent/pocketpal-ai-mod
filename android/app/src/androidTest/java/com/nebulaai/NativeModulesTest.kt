@@ -183,9 +183,7 @@ class NativeModulesTest {
             status = com.nebulaai.download.DownloadStatus.QUEUED,
             priority = 0,
             networkType = com.nebulaai.download.NetworkType.ANY,
-            createdAt = System.currentTimeMillis(),
-            error = null,
-            authToken = null
+            createdAt = System.currentTimeMillis()
         )
         runBlocking {
             dao.insertDownload(entity)
@@ -202,6 +200,12 @@ class NativeModulesTest {
     @Test
     fun nativeLibraryDir_containsSoFiles() {
         val nativeLibDir = context.applicationInfo?.nativeLibraryDir?.let { java.io.File(it) }
+            ?: context.applicationInfo?.primaryCpuAbi?.let { abi ->
+                java.io.File("/data/app/${context.packageName}/lib/$abi")
+            }
+            ?: context.applicationInfo?.secondaryCpuAbi?.let { abi ->
+                java.io.File("/data/app/${context.packageName}/lib/$abi")
+            }
         assertNotNull("Native lib dir path should be available", nativeLibDir)
         assertTrue("Native lib dir should exist", nativeLibDir!!.exists())
         val soFiles = nativeLibDir.listFiles { _, name -> name.endsWith(".so") }
