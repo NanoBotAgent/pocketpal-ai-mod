@@ -28,6 +28,10 @@ class NativeModulesTest {
             override fun reject(throwable: Throwable) { result[1] = throwable.message; latch.countDown() }
             override fun reject(code: String, message: String?, userInfo: WritableMap) { result[1] = "$code: $message"; latch.countDown() }
             override fun reject(code: String?, message: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = "$code: $message"; latch.countDown() }
+            override fun reject(throwable: Throwable, userInfo: WritableMap) { result[1] = throwable.message; latch.countDown() }
+            override fun reject(code: String, userInfo: WritableMap) { result[1] = code; latch.countDown() }
+            override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) { result[1] = "$code: $throwable"; latch.countDown() }
+            override fun reject(message: String) { result[1] = message; latch.countDown() }
         }
     }
 
@@ -86,7 +90,7 @@ class NativeModulesTest {
         val module = tryInstantiateModule("com.nebulaai.StorefrontModule", reactContext)
             ?: fail("StorefrontModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
-        val result = arrayOfNulls<String>(2)
+        val result = arrayOfNulls<Any?>(2)
         val getCountryCode = module.javaClass.getMethod("getCountryCode", Promise::class.java)
         getCountryCode.invoke(module, makePromise(latch, result))
         assertTrue("Promise should resolve", await(latch))
@@ -99,7 +103,7 @@ class NativeModulesTest {
         val module = tryInstantiateModule("com.nebulaai.AuthSessionModule", reactContext)
             ?: fail("AuthSessionModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
-        val result = arrayOfNulls<String>(2)
+        val result = arrayOfNulls<Any?>(2)
         val openAuth = module.javaClass.getMethod("openAuth", String::class.java, String::class.java, Promise::class.java)
         openAuth.invoke(module, "https://example.com", "pocketpal", makePromise(latch, result))
         assertTrue("Promise should settle", await(latch))
@@ -122,7 +126,7 @@ class NativeModulesTest {
         val module = tryInstantiateModule("com.nebulaai.ExternalContentLinkModule", reactContext)
             ?: fail("ExternalContentLinkModule should instantiate")
         val latch = java.util.concurrent.CountDownLatch(1)
-        val result = arrayOfNulls<String>(2)
+        val result = arrayOfNulls<Any?>(2)
         val prepareExternalLink = module.javaClass.getMethod("prepareExternalLink", String::class.java, Promise::class.java)
         prepareExternalLink.invoke(module, "https://example.com/checkout", makePromise(latch, result))
         assertTrue("Promise should settle", await(latch))
