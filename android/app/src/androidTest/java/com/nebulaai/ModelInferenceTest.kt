@@ -5,7 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableMap
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,12 +22,7 @@ class ModelInferenceTest {
             override fun resolve(value: Any?) { result[0] = value; latch.countDown() }
             override fun reject(code: String?, message: String?, throwable: Throwable?) { result[1] = "$code: $message"; latch.countDown() }
             override fun reject(code: String?, message: String?) { result[1] = "$code: $message"; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?) { result[1] = code; latch.countDown() }
-            override fun reject(throwable: Throwable) { result[1] = throwable.message; latch.countDown() }
-            override fun reject(code: String?, userInfo: WritableMap?) { result[1] = code; latch.countDown() }
-            override fun reject(code: String?, message: String?, userInfo: WritableMap?) { result[1] = "$code: $message"; latch.countDown() }
-            override fun reject(code: String?, throwable: Throwable?, userInfo: WritableMap?) { result[1] = "$code: $throwable"; latch.countDown() }
-            override fun reject(throwable: Throwable, userInfo: WritableMap?) { result[1] = throwable.message; latch.countDown() }
+            override fun reject(throwable: Throwable?) { result[1] = throwable?.message; latch.countDown() }
         }
     }
 
